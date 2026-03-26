@@ -1,0 +1,94 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: reviews
+    // Document ID: auto-generated
+    // Fields:
+    //   - name: string (required, 1-50 chars) - Reviewer name
+    //   - rating: int (required, 1-5) - Star rating
+    //   - comment: string (required, 1-1000 chars) - Review text
+    //   - createdAt: string (required, ISO 8601) - Creation timestamp
+    //   - uid: string (required) - User ID of the reviewer
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isDocOwner() {
+      return isAuthenticated() && request.auth.uid == resource.data.uid;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+          (request.auth.token.email == "rrahulssingh1710@gmail.com" && request.auth.token.email_verified == true));
+    }
+
+    function hasRequiredFields(fields) {
+      return request.resource.data.keys().hasAll(fields);
+    }
+
+    function hasOnlyAllowedFields(fields) {
+      return request.resource.data.keys().hasOnly(fields);
+    }
+
+    function isValidEmail(email) {
+      return email is string && email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+
+    function isValidDateString(dateStr) {
+      return dateStr is string && dateStr.matches("^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.*Z?$");
+    }
+
+    // ===============================================================
+    // Domain Validators
+    // ===============================================================
+    function isValidReview(data) {
+      return hasRequiredFields(['name', 'rating', 'comment', 'createdAt', 'uid']) &&
+             hasOnlyAllowedFields(['name', 'rating', 'comment', 'createdAt', 'uid']) &&
+             data.name is string && data.name.size() > 0 && data.name.size() <= 50 &&
+             data.rating is int && data.rating >= 1 && data.rating <= 5 &&
+             data.comment is string && data.comment.size() > 0 && data.comment.size() <= 1000 &&
+             isValidDateString(data.createdAt) &&
+             data.uid is string && data.uid == request.auth.uid;
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+    match /reviews/{reviewId} {
+      // Reviews are publicly readable
+      allow read: if true;
+      
+      // Only authenticated users can create reviews
+      allow create: if isAuthenticated() && isValidReview(request.resource.data);
+      
+      // Only owners or admins can update/delete reviews
+      allow update: if (isDocOwner() || isAdmin()) && isValidReview(request.resource.data) && 
+                      request.resource.data.uid == resource.data.uid &&
+                      request.resource.data.createdAt == resource.data.createdAt;
+      
+      allow delete: if isDocOwner() || isAdmin();
+    }
+
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create, update: if isOwner(userId) && hasOnlyAllowedFields(['name', 'email', 'role']) &&
+                               request.resource.data.role == 'user';
+      allow delete: if isAdmin();
+    }
+  }
+}

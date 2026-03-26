@@ -1,0 +1,43 @@
+{
+  "entities": {
+    "Review": {
+      "title": "Review",
+      "description": "A customer review for Fit Buddies products.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "The unique identifier for the review."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the reviewer."
+        },
+        "rating": {
+          "type": "integer",
+          "description": "The star rating (1-5)."
+        },
+        "comment": {
+          "type": "string",
+          "description": "The review text."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The timestamp when the review was created."
+        },
+        "uid": {
+          "type": "string",
+          "description": "The UID of the user who wrote the review."
+        }
+      },
+      "required": ["name", "rating", "comment", "createdAt", "uid"]
+    }
+  },
+  "firestore": {
+    "reviews": {
+      "schema": "Review",
+      "description": "Collection of customer reviews."
+    }
+  }
+}
