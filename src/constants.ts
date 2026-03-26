@@ -33,4 +33,4 @@ export const OWNER_NUMBER = "+91 92795 02770";
 export const OWNER_EMAIL = "eatfitbuddies@gmail.com";
 export const OWNER_ADDRESS = "Pure Swadh Enterprises, Ground floor, 730, Ward No. -30, Abarpul, Arrah Bhojpur (Bihar) 802301";
 export const WHATSAPP_LINK = "https://wa.me/919279502770";
-export const INSTAGRAM_LINK = "https://www.instagram.com/eatfitbuddies/"; // Assuming this based on email
+export const INSTAGRAM_LINK = "https://www.instagram.com/fitbuddies_official?utm_source=qr";

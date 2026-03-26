@@ -62,7 +62,7 @@ export default function Footer() {
               </div>
               <div>
                 <p className="text-white font-black uppercase text-sm tracking-widest mb-2">Instagram</p>
-                <a href={INSTAGRAM_LINK} target="_blank" rel="noopener noreferrer" className="text-xl font-medium hover:text-pink-500 transition-colors">@eatfitbuddies</a>
+                <a href={INSTAGRAM_LINK} target="_blank" rel="noopener noreferrer" className="text-xl font-medium hover:text-pink-500 transition-colors">@fitbuddies_official</a>
               </div>
             </li>
             <li className="flex items-start gap-5">
